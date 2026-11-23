@@ -39,7 +39,7 @@ jobs:
           xcrun --sdk iphoneos --show-sdk-version
           xcrun --sdk iphoneos --show-sdk-path
           git -C "$THEOS" rev-parse HEAD
-      - name: Verify DD defaults and host admission policy
+      - name: Verify feature defaults and host admission policy
         shell: bash
         run: |
           set -euo pipefail

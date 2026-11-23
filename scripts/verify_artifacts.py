@@ -58,7 +58,7 @@ def verify(out, scheme):
         if not packed.with_suffix(".plist").is_file():
             raise RuntimeError("DEB loader filter missing")
         if bundle_filter(packed.with_suffix(".plist")) != source_contract["bundle_ids"]:
-            raise RuntimeError("Packaged bundle IDs do not match DD filter")
+            raise RuntimeError("Packaged bundle IDs do not match the supported bundle filter")
     if not re.search(r"\bminos\s+15\.0\b", versions):
         raise RuntimeError("Expected iOS 15.0 minimum deployment target")
     evidence = {
@@ -66,7 +66,7 @@ def verify(out, scheme):
         "package_architecture": architecture, "deb_payload": relative,
         "minimum_ios": "15.0", "hook_generator": "internal",
         "version": package_version, "bundle_ids": source_contract["bundle_ids"],
-        "dd_default_enabled": source_contract["dd_default_enabled"],
+        "migrated_default_enabled": source_contract["migrated_default_enabled"],
         "default_enabled_candidates": source_contract["default_enabled_candidates"],
         "ios27_device_tested": False, "certificate_signed_ipa_tested": False,
         "package_info": package_info,

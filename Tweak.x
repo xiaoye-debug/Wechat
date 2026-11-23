@@ -1,4 +1,4 @@
-// 0.2.0: reviewed DD + header interfaces; each method has its own guarded Logos group.
+// 0.2.0: reviewed baseline and header interfaces; each method has its own guarded Logos group.
 // Static source merge. No device/runtime success is implied by these declarations.
 #import <Foundation/Foundation.h>
 #import <CoreFoundation/CoreFoundation.h>
@@ -144,11 +144,11 @@ static BOOL WCEBRecordInstall(const WCEBHookSpec *spec, IMP previous)
     return changed;
 }
 
-#pragma mark - DD system queries (arm64 0x47f8-0x4ee8, 0x534c)
+#pragma mark - System queries (arm64 0x47f8-0x4ee8, 0x534c)
 
-// DD predicate 0x5858. Prefix entries come from __DATA_CONST 0x8100;
+// Baseline predicate 0x5858. Prefix entries come from __DATA_CONST 0x8100;
 // substring entries come from 0x8178. Preserve its case-sensitive matching.
-static BOOL WCEBDDIsHiddenPath(id candidate)
+static BOOL WCEBIsHiddenPath(id candidate)
 {
     if (![candidate isKindOfClass:[NSString class]]) return NO;
     const char *path = [(NSString *)candidate UTF8String];
@@ -177,20 +177,20 @@ static BOOL WCEBDDIsHiddenPath(id candidate)
     return NO;
 }
 
-// DD 0x5654 retains nonmatching strings and all non-string array members.
+// Baseline 0x5654 retains nonmatching strings and all non-string array members.
 // A caller with an unexpected return type keeps its original object.
-static id WCEBDDFilterStrings(id values)
+static id WCEBFilterStrings(id values)
 {
     if (![values isKindOfClass:[NSArray class]]) return values;
     NSMutableArray *filtered = [NSMutableArray arrayWithCapacity:[values count]];
     for (id value in values) {
-        if (!WCEBDDIsHiddenPath(value)) [filtered addObject:value];
+        if (!WCEBIsHiddenPath(value)) [filtered addObject:value];
     }
     return [filtered copy];
 }
 
-// DD helper 0x5994: hide embedded.mobileprovision inside application bundles.
-static BOOL WCEBDDIsProvisioningPath(id candidate)
+// Baseline helper 0x5994: hide embedded.mobileprovision inside application bundles.
+static BOOL WCEBIsProvisioningPath(id candidate)
 {
     if (![candidate isKindOfClass:[NSString class]]) return NO;
     NSString *path = candidate;
@@ -201,7 +201,7 @@ static BOOL WCEBDDIsProvisioningPath(id candidate)
         ([path isEqualToString:bundle] || [path hasPrefix:[bundle stringByAppendingString:@"/"]]);
 }
 
-static void WCEBDDSetMissingFileError(NSError **error, NSString *path)
+static void WCEBSetMissingFileError(NSError **error, NSString *path)
 {
     if (!error) return;
     *error = [NSError errorWithDomain:NSCocoaErrorDomain
@@ -209,16 +209,16 @@ static void WCEBDDSetMissingFileError(NSError **error, NSString *path)
                             userInfo:path ? @{NSFilePathErrorKey: path} : nil];
 }
 
-static NSString *WCEBDDPreferenceString(CFStringRef key)
+static NSString *WCEBPreferenceString(CFStringRef key)
 {
     CFPropertyListRef property = CFPreferencesCopyAppValue(key, CFSTR(WCEB_DOMAIN));
     id value = CFBridgingRelease(property);
     return [value isKindOfClass:[NSString class]] ? value : nil;
 }
 
-// Optional compatibility with DD's IDFV view. Only this tweak's domain is written.
+// Optional compatibility with the baseline IDFV view. Only this tweak's domain is written.
 // Valid UUIDs are cached once per process; malformed configured strings fall back.
-static NSUUID *WCEBDDVendorIdentifier(void)
+static NSUUID *WCEBVendorIdentifier(void)
 {
     static NSUUID *identifier;
     static dispatch_once_t onceToken;
@@ -227,11 +227,11 @@ static NSUUID *WCEBDDVendorIdentifier(void)
         NSString *configured = environmentValue ? [NSString stringWithUTF8String:environmentValue] : nil;
         if (configured.length > 0) identifier = [[NSUUID alloc] initWithUUIDString:configured];
         if (!identifier) {
-            configured = WCEBDDPreferenceString(CFSTR("FakeIDFV"));
+            configured = WCEBPreferenceString(CFSTR("FakeIDFV"));
             if (configured.length > 0) identifier = [[NSUUID alloc] initWithUUIDString:configured];
         }
         if (!identifier) {
-            configured = WCEBDDPreferenceString(CFSTR("GeneratedIDFV"));
+            configured = WCEBPreferenceString(CFSTR("GeneratedIDFV"));
             if (configured.length > 0) identifier = [[NSUUID alloc] initWithUUIDString:configured];
         }
         if (!identifier) {
@@ -268,7 +268,7 @@ static NSUUID *WCEBDDVendorIdentifier(void)
     NSArray *original = %orig;
     if (!gEnabled || !gSystemQueries) return original;
     // Preserve original failures and error out-parameters unchanged.
-    return WCEBDDFilterStrings(original);
+    return WCEBFilterStrings(original);
 }
 %end
 %end
@@ -277,7 +277,7 @@ static NSUUID *WCEBDDVendorIdentifier(void)
 %hook NSFileManager
 - (BOOL)fileExistsAtPath:(NSString *)path
 {
-    if (gEnabled && gSystemQueries && WCEBDDIsHiddenPath(path)) return NO;
+    if (gEnabled && gSystemQueries && WCEBIsHiddenPath(path)) return NO;
     return %orig;
 }
 %end
@@ -287,7 +287,7 @@ static NSUUID *WCEBDDVendorIdentifier(void)
 %hook NSFileManager
 - (BOOL)fileExistsAtPath:(NSString *)path isDirectory:(BOOL *)isDirectory
 {
-    if (gEnabled && gSystemQueries && WCEBDDIsHiddenPath(path)) {
+    if (gEnabled && gSystemQueries && WCEBIsHiddenPath(path)) {
         if (isDirectory) *isDirectory = NO;
         return NO;
     }
@@ -300,7 +300,7 @@ static NSUUID *WCEBDDVendorIdentifier(void)
 %hook NSFileManager
 - (NSData *)contentsAtPath:(NSString *)path
 {
-    if (gEnabled && gSystemQueries && WCEBDDIsHiddenPath(path)) return nil;
+    if (gEnabled && gSystemQueries && WCEBIsHiddenPath(path)) return nil;
     return %orig;
 }
 %end
@@ -310,8 +310,8 @@ static NSUUID *WCEBDDVendorIdentifier(void)
 %hook NSFileManager
 - (NSDictionary *)attributesOfItemAtPath:(NSString *)path error:(NSError **)error
 {
-    if (gEnabled && gSystemQueries && WCEBDDIsHiddenPath(path)) {
-        WCEBDDSetMissingFileError(error, path);
+    if (gEnabled && gSystemQueries && WCEBIsHiddenPath(path)) {
+        WCEBSetMissingFileError(error, path);
         return nil;
     }
     return %orig;
@@ -353,8 +353,8 @@ static NSUUID *WCEBDDVendorIdentifier(void)
 + (id)stringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)encoding error:(NSError **)error
 {
     if (gEnabled && gSystemQueries &&
-        (WCEBDDIsProvisioningPath(path) || WCEBDDIsHiddenPath(path))) {
-        WCEBDDSetMissingFileError(error, path);
+        (WCEBIsProvisioningPath(path) || WCEBIsHiddenPath(path))) {
+        WCEBSetMissingFileError(error, path);
         return nil;
     }
     return %orig;
@@ -369,7 +369,7 @@ static NSUUID *WCEBDDVendorIdentifier(void)
 + (id)dictionaryWithContentsOfFile:(NSString *)path
 {
     if (gEnabled && gSystemQueries &&
-        (WCEBDDIsProvisioningPath(path) || WCEBDDIsHiddenPath(path))) return nil;
+        (WCEBIsProvisioningPath(path) || WCEBIsHiddenPath(path))) return nil;
     return %orig;
 }
 %end
@@ -382,7 +382,7 @@ static NSUUID *WCEBDDVendorIdentifier(void)
 - (NSUUID *)identifierForVendor
 {
     if (!gEnabled || !gDeviceIdentity) return %orig;
-    return WCEBDDVendorIdentifier();
+    return WCEBVendorIdentifier();
 }
 %end
 %end
@@ -410,7 +410,7 @@ static NSUUID *WCEBDDVendorIdentifier(void)
 
 static BOOL WCEBIsSuspiciousPath(NSString *path)
 {
-    return WCEBDDIsHiddenPath(path);
+    return WCEBIsHiddenPath(path);
 }
 
 #pragma mark - 1. SecModuleManager（总闸）
@@ -782,7 +782,7 @@ static BOOL WCEBIsSuspiciousPath(NSString *path)
 
 #import <objc/message.h>
 
-#pragma mark - DD 微信内部检查与头文件新增入口
+#pragma mark - 微信内部检查与头文件新增入口
 
 // 仅对数组中的字符串做路径过滤；未知返回类型保持原样。
 static id WCEBAppFilterImages(id value)
@@ -798,7 +798,7 @@ static id WCEBAppFilterImages(id value)
     return [result copy];
 }
 
-// DD 0x5b94：执行原 getter 后，按原返回对象类型给出空值。
+// Baseline 0x5b94：执行原 getter 后，按原返回对象类型给出空值。
 static id WCEBAppEmptyField(id value)
 {
     if ([value isKindOfClass:[NSString class]]) return @"";
@@ -1031,7 +1031,7 @@ static BOOL WCEBAppCanInvokeBooleanClassMethod(Class cls, SEL selector)
 %end
 
 
-// Imported DD field hooks: enabled by default in 0.2.1; saved preferences still override.
+// Report field hooks: enabled by default in 0.2.1; saved preferences still override.
 
 %group WCEBHook068
 %hook WCExtInfo
@@ -1119,7 +1119,7 @@ static BOOL WCEBAppCanInvokeBooleanClassMethod(Class cls, SEL selector)
 %end
 
 
-// Imported DD diagnostic hooks: enabled by default in 0.2.1; separately configurable.
+// Diagnostic hooks: enabled by default in 0.2.1; separately configurable.
 
 %group WCEBHook076
 %hook WCCrashBlockMonitorPlugin
@@ -1165,7 +1165,7 @@ static BOOL WCEBAppCanInvokeBooleanClassMethod(Class cls, SEL selector)
 %end
 
 
-// WCAccountControlMgr -onAuthOK 在 DD 中仅转调原实现，不安装无行为变化的 Hook。
+// WCAccountControlMgr -onAuthOK 在基线实现中仅转调原实现，不安装无行为变化的 Hook。
 
 
 %group WCEBHook080
@@ -1366,7 +1366,7 @@ static const WCEBHookSpec kHookSpecs[] = {
 %ctor
 {
     @autoreleasepool {
-        // Keep runtime admission aligned with DD's loader bundle allowlist.
+        // Keep runtime admission aligned with the loader bundle allowlist.
         // Retain support for re-signed WeChat bundles and exclude app extensions.
         NSBundle *hostBundle = [NSBundle mainBundle];
         BOOL isExtension = hostBundle.infoDictionary[@"NSExtension"] != nil ||

@@ -18,7 +18,7 @@ int main(void)
             @"com.tencent.qy.xin", @"com.tencent.mm.xin"
         ];
         for (NSString *bundleID in bundleIDs) {
-            check(WCEBSupportsHost(bundleID, @"DifferentMainExecutable", NO), YES, "DD bundle accepted");
+            check(WCEBSupportsHost(bundleID, @"DifferentMainExecutable", NO), YES, "Supported bundle accepted");
             check(WCEBSupportsHost(bundleID, @"WeChat", YES), NO, "extension excluded");
         }
         check(WCEBSupportsHost(@"custom.resigned.wechat", @"WeChat", NO), YES, "resigned WeChat");

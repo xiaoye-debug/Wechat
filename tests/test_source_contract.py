@@ -13,11 +13,11 @@ from verify_source_contract import bundle_filter, verify
 class SourceContractTests(unittest.TestCase):
     def test_defaults_and_bundle_contract(self):
         result = verify()
-        self.assertEqual(result["dd_default_enabled"], 54)
+        self.assertEqual(result["migrated_default_enabled"], 54)
         self.assertEqual(result["default_enabled_candidates"], 80)
 
     def test_loader_plist_encodings(self):
-        ids = json.loads((ROOT / "tests/fixtures/dd-contract.json").read_text())["bundle_ids"]
+        ids = json.loads((ROOT / "tests/fixtures/hook-contract.json").read_text())["bundle_ids"]
         value = {"Filter": {"Bundles": ids}}
         encodings = {
             "binary": plistlib.dumps(value, fmt=plistlib.FMT_BINARY),

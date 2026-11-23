@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check DD method identities, enabled startup gates and exact bundle filters."""
+"""Check baseline method identities, enabled startup gates and exact bundle filters."""
 import json
 from pathlib import Path
 import plistlib
@@ -21,7 +21,7 @@ def bundle_filter(path):
 
 def verify():
     text = (ROOT / "Tweak.x").read_text(encoding="utf-8-sig")
-    fixture = json.loads((ROOT / "tests/fixtures/dd-contract.json").read_text())
+    fixture = json.loads((ROOT / "tests/fixtures/hook-contract.json").read_text())
     registry_text = text.split("static const WCEBHookSpec kHookSpecs[] =", 1)[1].split("};", 1)[0]
     registry = [(cls, "+" if kind == "YES" else "-", selector) for cls, selector, kind in
                 re.findall(r'\{\s*"([^"]+)",\s*"([^"]+)",\s*(YES|NO),', registry_text)]
@@ -45,19 +45,19 @@ def verify():
         assert registry[index] not in status, "Repeated initializer"
         status[registry[index]] = all(defaults[g] for g in re.findall(r"\bg[A-Z]\w*", condition))
     key = lambda row: (row["class"], row["kind"], row["selector"])
-    dd = set(map(key, fixture["hooks"]))
+    baseline = set(map(key, fixture["hooks"]))
     excluded = set(map(key, fixture["excluded_passthrough"]))
-    transferred = dd - excluded
-    assert len(dd) == 55 and len(transferred) == 54
-    assert transferred <= status.keys(), "Missing migrated DD method"
+    transferred = baseline - excluded
+    assert len(baseline) == 55 and len(transferred) == 54
+    assert transferred <= status.keys(), "Missing migrated baseline method"
     assert not (excluded & status.keys()), "Unexpected pure-passthrough hook"
-    disabled_dd = sorted(k for k in transferred if not status[k])
-    assert not disabled_dd, f"Migrated DD defaults still disabled: {disabled_dd}"
+    disabled_migrated = sorted(k for k in transferred if not status[k])
+    assert not disabled_migrated, f"Migrated feature defaults still disabled: {disabled_migrated}"
     loader_bundles = bundle_filter(ROOT / "WeChatEnvBypass.plist")
     policy = (ROOT / "WCEBHostPolicy.h").read_text()
     policy_bundles = re.findall(r'@"([^"\n]+)"', re.search(
         r"supportedBundles = @\[(.*?)\];", policy, re.S).group(1))
-    assert loader_bundles == policy_bundles == fixture["bundle_ids"], "DD bundle allowlist mismatch"
+    assert loader_bundles == policy_bundles == fixture["bundle_ids"], "Supported bundle allowlist mismatch"
     assert "WCEBSupportsHost(hostBundle.bundleIdentifier," in text
     assert 'infoDictionary[@"NSExtension"]' in text and 'isEqualToString:@"appex"' in text
     assert re.search(r"if \(isExtension\) return NO;", policy), "Extension exclusion missing"
@@ -69,8 +69,8 @@ def verify():
     return {
         "status": "PASS", "version": version,
         "methods": len(registry), "duplicate_method_identities": 0,
-        "dd_migrated_methods": len(transferred), "dd_default_enabled": len(transferred),
-        "dd_excluded_passthrough": [list(k) for k in sorted(excluded)],
+        "migrated_methods": len(transferred), "migrated_default_enabled": len(transferred),
+        "excluded_passthrough": [list(k) for k in sorted(excluded)],
         "default_enabled_candidates": sum(status.values()),
         "default_disabled_candidates": len(status) - sum(status.values()),
         "bundle_ids": loader_bundles,

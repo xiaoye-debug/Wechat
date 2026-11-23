@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-// Exact bundle IDs recovered from the DD package filter. No prefix wildcard.
+// Exact bundle IDs from the verified package filter. No prefix wildcard.
 static inline BOOL WCEBSupportsHost(NSString *bundleID, NSString *executable, BOOL isExtension)
 {
     if (isExtension) return NO;
