@@ -9,9 +9,10 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def bundle_filter(path):
-    text = path.read_text(encoding="utf-8-sig")
-    if text.lstrip().startswith("<?xml"):
-        return plistlib.loads(text.encode())["Filter"]["Bundles"]
+    data = path.read_bytes()
+    if data.startswith(b"bplist00") or data.lstrip().startswith(b"<?xml"):
+        return plistlib.loads(data)["Filter"]["Bundles"]
+    text = data.decode("utf-8-sig")
     body = re.search(r"Bundles\s*=\s*\((.*?)\);", text, re.S)
     if not body:
         raise AssertionError("Missing loader bundle filter")

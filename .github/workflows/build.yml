@@ -43,6 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/verify_source_contract.py
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
           xcrun --sdk macosx clang -fobjc-arc -framework Foundation -I . tests/host_policy.m -o "$RUNNER_TEMP/wceb-host-policy"
           "$RUNNER_TEMP/wceb-host-policy"
       - name: Build and verify injection package
