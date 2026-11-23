@@ -4,6 +4,9 @@ INSTALL_TARGET_PROCESSES := WeChat
 
 include $(THEOS)/makefiles/common.mk
 
+# Use a relocatable LC_ID_DYLIB instead of the jailbreak filesystem path.
+TARGET_LDFLAGS_DYNAMICLIB = -dynamiclib -install_name "@rpath/$(1)"
+
 TWEAK_NAME := WeChatEnvBypass
 WeChatEnvBypass_FILES := Tweak.x
 WeChatEnvBypass_CFLAGS := -fobjc-arc

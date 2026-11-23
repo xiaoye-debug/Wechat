@@ -19,7 +19,11 @@ def verify(out, scheme):
     archs = run("lipo", "-archs", str(dylib)).split()
     if archs != ["arm64"]:
         raise RuntimeError(f"Expected standalone arm64 app library, got {archs}")
-    identity = run("otool", "-D", str(dylib)).splitlines()[-1].strip()
+    versions = run("otool", "-l", str(dylib))
+    id_command = re.search(r"cmd LC_ID_DYLIB\s+cmdsize \d+\s+name (.*?) \(offset", versions)
+    if not id_command:
+        raise RuntimeError("LC_ID_DYLIB load command missing")
+    identity = id_command.group(1)
     linked = run("otool", "-L", str(dylib))
     deps = [line.strip().split(" (compatibility version", 1)[0]
             for line in linked.splitlines()[1:] if line.strip()]
@@ -47,11 +51,10 @@ def verify(out, scheme):
             raise RuntimeError(f"DEB payload differs from exported dylib: {relative}")
         if not packed.with_suffix(".plist").is_file():
             raise RuntimeError("DEB loader filter missing")
-    versions = run("otool", "-l", str(dylib))
     if not re.search(r"\bminos\s+15\.0\b", versions):
         raise RuntimeError("Expected iOS 15.0 minimum deployment target")
     evidence = {
-        "scheme": scheme, "architectures": archs, "dependencies": deps,
+        "scheme": scheme, "architectures": archs, "install_name": identity, "dependencies": deps,
         "package_architecture": architecture, "deb_payload": relative,
         "minimum_ios": "15.0", "hook_generator": "internal",
         "ios27_device_tested": False, "certificate_signed_ipa_tested": False,
