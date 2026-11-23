@@ -1,0 +1,8 @@
+Package: com.macxk.wcenvbypass
+Name: WeChatEnvBypass
+Version: 0.2.0
+Architecture: iphoneos-arm
+Description: WeChat environment compatibility tweak; standalone Objective-C hooks for IPA injection
+Maintainer: MacXK
+Author: MacXK
+Section: Tweaks

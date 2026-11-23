@@ -1,0 +1,10 @@
+.theos/
+packages/
+dist/
+__pycache__/
+.DS_Store
+*.p12
+*.pfx
+*.mobileprovision
+*.ipa
+*.key

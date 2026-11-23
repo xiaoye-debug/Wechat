@@ -1,0 +1,56 @@
+name: Build DEB and injection dylib
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['docs/**', '**.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.scheme }} / arm64
+    runs-on: macos-15
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        scheme: [injection, rootless]
+    env:
+      THEOS: ${{ github.workspace }}/.theos-toolchain
+      THEOS_PIN: 8167f59de02fd32cf45b16bfcb1330dfa5c9974c
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up build dependencies on ephemeral runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          for formula in ldid dpkg; do
+            brew list "$formula" >/dev/null 2>&1 || brew install "$formula"
+          done
+          git init "$THEOS"
+          git -C "$THEOS" remote add origin https://github.com/theos/theos.git
+          git -C "$THEOS" fetch --depth 1 origin "$THEOS_PIN"
+          git -C "$THEOS" checkout --detach FETCH_HEAD
+          git -C "$THEOS" submodule update --init --recursive --depth 1
+          xcrun --sdk iphoneos --show-sdk-version
+          xcrun --sdk iphoneos --show-sdk-path
+          git -C "$THEOS" rev-parse HEAD
+      - name: Build and verify package
+        shell: bash
+        run: bash scripts/build.sh '${{ matrix.scheme }}'
+      - name: Upload verified DEB and dylib
+        uses: actions/upload-artifact@v4
+        with:
+          name: WeChatEnvBypass-${{ matrix.scheme }}-arm64
+          path: dist/${{ matrix.scheme }}/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Record build result
+        shell: bash
+        run: |
+          echo '### Verified build: ${{ matrix.scheme }} / arm64' >> "$GITHUB_STEP_SUMMARY"
+          echo 'DEB, standalone dylib, dependencies, evidence and SHA256SUMS are in the artifact.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'iOS 27 and certificate-signed IPA installation still require device validation.' >> "$GITHUB_STEP_SUMMARY"

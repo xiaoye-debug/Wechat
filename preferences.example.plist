@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Enabled</key>
+	<true/>
+	<key>HookJailbreak</key>
+	<true/>
+	<key>HookModules</key>
+	<true/>
+	<key>HookEnvChecks</key>
+	<true/>
+	<key>HookReporting</key>
+	<true/>
+	<key>HookSceneGate</key>
+	<true/>
+	<key>HookIntegrity</key>
+	<false/>
+	<key>LogEnabled</key>
+	<false/>
+	<key>HookSystemQueries</key>
+	<true/>
+	<key>HookClientChecks</key>
+	<true/>
+	<key>HookCacheReports</key>
+	<true/>
+	<key>HookSignature</key>
+	<true/>
+	<key>HookReportFields</key>
+	<false/>
+	<key>HookDeviceIdentity</key>
+	<false/>
+	<key>HookReceiptView</key>
+	<false/>
+	<key>HookDiagnosticsSuppression</key>
+	<false/>
+	<key>HookHeaderEnvironment</key>
+	<true/>
+	<key>HookPaymentEnvironment</key>
+	<false/>
+</dict>
+</plist>
