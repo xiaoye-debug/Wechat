@@ -57,6 +57,7 @@ flowchart TD
 | `scripts/verify_source_contract.py` | 54/54 DD 迁入项默认开启，88 方法身份唯一，80 开启候选 / 8 关闭候选 | 纳入 CI 并随产物保存 `source-contract.json` |
 | `tests/host_policy.m` | 对实际 Objective-C helper 测试白名单、重签、扩展、无身份及无通配符情况 | 在 macOS CI 执行 13 项用例 |
 | DEB 解包校验 | 核对最终包内的过滤表、版本和动态库内容 | 防止源码改了但打包仍使用旧配置 |
+| `tests/test_source_contract.py` | 对二进制、XML、OpenStep 三种过滤格式回归测试 | 支持 Theos 最终包中实际使用的二进制 plist |
 
 ## 复现验证
 
@@ -69,4 +70,4 @@ bash scripts/build.sh injection
 bash scripts/build.sh rootless
 ```
 
-GitHub 构建记录：[0.2.1 工作流](https://github.com/xiaoye-debug/Wechat/actions/runs/45222861692)。实际构建结果和下载核验记录以本地 case 日志及该工作流为准。未执行 iOS 27 真机、IPA 证书重签安装或添加好友场景测试，不宣称解决封号问题。
+GitHub 构建记录：[0.2.1 工作流](https://github.com/xiaoye-debug/Wechat/actions/runs/45223305134)。首次构建已完成编译和打包，但新增校验未识别 Theos 转换后的二进制过滤 plist；现已修复解析并加入三格式回归测试。最终构建结果和下载核验记录以本地 case 日志及该工作流为准。未执行 iOS 27 真机、IPA 证书重签安装或添加好友场景测试，不宣称解决封号问题。

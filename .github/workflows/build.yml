@@ -16,7 +16,8 @@ concurrency:
 jobs:
   build:
     name: injection and rootless / arm64
-    runs-on: macos-15
+    # Standard Intel host; the tweak output is still explicitly arm64.
+    runs-on: macos-15-intel
     timeout-minutes: 30
     env:
       THEOS: ${{ github.workspace }}/.theos-toolchain
