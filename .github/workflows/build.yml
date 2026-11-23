@@ -9,15 +9,15 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    name: ${{ matrix.scheme }} / arm64
+    name: injection and rootless / arm64
     runs-on: macos-15
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        scheme: [injection, rootless]
     env:
       THEOS: ${{ github.workspace }}/.theos-toolchain
       THEOS_PIN: 8167f59de02fd32cf45b16bfcb1330dfa5c9974c
@@ -38,19 +38,29 @@ jobs:
           xcrun --sdk iphoneos --show-sdk-version
           xcrun --sdk iphoneos --show-sdk-path
           git -C "$THEOS" rev-parse HEAD
-      - name: Build and verify package
+      - name: Build and verify injection package
         shell: bash
-        run: bash scripts/build.sh '${{ matrix.scheme }}'
-      - name: Upload verified DEB and dylib
+        run: bash scripts/build.sh injection
+      - name: Upload verified injection DEB and dylib
         uses: actions/upload-artifact@v4
         with:
-          name: WeChatEnvBypass-${{ matrix.scheme }}-arm64
-          path: dist/${{ matrix.scheme }}/
+          name: WeChatEnvBypass-injection-arm64
+          path: dist/injection/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Build and verify rootless package
+        shell: bash
+        run: bash scripts/build.sh rootless
+      - name: Upload verified rootless DEB and dylib
+        uses: actions/upload-artifact@v4
+        with:
+          name: WeChatEnvBypass-rootless-arm64
+          path: dist/rootless/
           if-no-files-found: error
           retention-days: 30
       - name: Record build result
         shell: bash
         run: |
-          echo '### Verified build: ${{ matrix.scheme }} / arm64' >> "$GITHUB_STEP_SUMMARY"
+          echo '### Verified builds: injection and rootless / arm64' >> "$GITHUB_STEP_SUMMARY"
           echo 'DEB, standalone dylib, dependencies, evidence and SHA256SUMS are in the artifact.' >> "$GITHUB_STEP_SUMMARY"
           echo 'iOS 27 and certificate-signed IPA installation still require device validation.' >> "$GITHUB_STEP_SUMMARY"
