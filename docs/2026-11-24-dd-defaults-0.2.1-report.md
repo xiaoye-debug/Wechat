@@ -70,4 +70,6 @@ bash scripts/build.sh injection
 bash scripts/build.sh rootless
 ```
 
-GitHub 构建记录：[0.2.1 工作流](https://github.com/xiaoye-debug/Wechat/actions/runs/45223305134)。首次构建已完成编译和打包，但新增校验未识别 Theos 转换后的二进制过滤 plist；现已修复解析并加入三格式回归测试。最终构建结果和下载核验记录以本地 case 日志及该工作流为准。未执行 iOS 27 真机、IPA 证书重签安装或添加好友场景测试，不宣称解决封号问题。
+GitHub 构建记录：[0.2.1 成功工作流](https://github.com/xiaoye-debug/Wechat/actions/runs/45223966178)。injection 与 rootless 两种布局的编译、产物校验和上传均为 success；默认值检查、3 项 Python 回归测试（含三种 plist 编码）、13 项 Objective-C 宿主策略用例均通过。两个 artifact 已下载至本机 `编译产物_0.2.1`，14 个清单文件的 SHA256 均匹配。
+
+首次构建已完成编译和打包，但新增校验未识别 Theos 转换后的二进制过滤 plist；已修复解析。之后 ARM 主机排队，切换到标准 `macos-15-intel` runner 后完成构建，产物仍显式指定为 iOS arm64。未执行 iOS 27 真机、IPA 证书重签安装或添加好友场景测试，不宣称解决封号问题。
