@@ -7,11 +7,12 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 #import <dispatch/dispatch.h>
+#import "WCEBHostPolicy.h"
 #include <string.h>
 #include <stdlib.h>
 
 #define WCEB_DOMAIN "com.macxk.wcenvbypass"
-#define WCEB_VERSION "0.2.0"
+#define WCEB_VERSION "0.2.1"
 
 static os_log_t gLog;
 static BOOL gEnabled = YES;
@@ -26,10 +27,10 @@ static BOOL gSystemQueries = YES;
 static BOOL gClientChecks = YES;
 static BOOL gCacheReports = YES;
 static BOOL gSignature = YES;
-static BOOL gReportFields = NO;
-static BOOL gDeviceIdentity = NO;
-static BOOL gReceiptView = NO;
-static BOOL gDiagnosticsSuppression = NO;
+static BOOL gReportFields = YES;
+static BOOL gDeviceIdentity = YES;
+static BOOL gReceiptView = YES;
+static BOOL gDiagnosticsSuppression = YES;
 static BOOL gHeaderEnvironment = YES;
 static BOOL gPaymentEnvironment = NO;
 
@@ -58,10 +59,10 @@ static void WCEBLoadConfig(void)
     gClientChecks = WCEBBool(@"HookClientChecks", YES);
     gCacheReports = WCEBBool(@"HookCacheReports", YES);
     gSignature = WCEBBool(@"HookSignature", YES);
-    gReportFields = WCEBBool(@"HookReportFields", NO);
-    gDeviceIdentity = WCEBBool(@"HookDeviceIdentity", NO);
-    gReceiptView = WCEBBool(@"HookReceiptView", NO);
-    gDiagnosticsSuppression = WCEBBool(@"HookDiagnosticsSuppression", NO);
+    gReportFields = WCEBBool(@"HookReportFields", YES);
+    gDeviceIdentity = WCEBBool(@"HookDeviceIdentity", YES);
+    gReceiptView = WCEBBool(@"HookReceiptView", YES);
+    gDiagnosticsSuppression = WCEBBool(@"HookDiagnosticsSuppression", YES);
     gHeaderEnvironment = WCEBBool(@"HookHeaderEnvironment", YES);
     gPaymentEnvironment = WCEBBool(@"HookPaymentEnvironment", NO);
 }
@@ -1030,7 +1031,7 @@ static BOOL WCEBAppCanInvokeBooleanClassMethod(Class cls, SEL selector)
 %end
 
 
-// DD 字段修改为独立开关，默认不影响正常业务数据。
+// Imported DD field hooks: enabled by default in 0.2.1; saved preferences still override.
 
 %group WCEBHook068
 %hook WCExtInfo
@@ -1118,7 +1119,7 @@ static BOOL WCEBAppCanInvokeBooleanClassMethod(Class cls, SEL selector)
 %end
 
 
-// DD 诊断路径单独控制，默认保留崩溃记录和恢复功能。
+// Imported DD diagnostic hooks: enabled by default in 0.2.1; separately configurable.
 
 %group WCEBHook076
 %hook WCCrashBlockMonitorPlugin
@@ -1365,9 +1366,13 @@ static const WCEBHookSpec kHookSpecs[] = {
 %ctor
 {
     @autoreleasepool {
-        // IPA injectors may ignore the jailbreak loader's filter plist.
-        // Permit re-signed bundle identifiers, but never hook app extensions.
-        if (![[NSBundle mainBundle].infoDictionary[@"CFBundleExecutable"] isEqualToString:@"WeChat"]) return;
+        // Keep runtime admission aligned with DD's loader bundle allowlist.
+        // Retain support for re-signed WeChat bundles and exclude app extensions.
+        NSBundle *hostBundle = [NSBundle mainBundle];
+        BOOL isExtension = hostBundle.infoDictionary[@"NSExtension"] != nil ||
+            [hostBundle.bundlePath.pathExtension isEqualToString:@"appex"];
+        if (!WCEBSupportsHost(hostBundle.bundleIdentifier,
+                              hostBundle.infoDictionary[@"CFBundleExecutable"], isExtension)) return;
         gLog = os_log_create(WCEB_DOMAIN, "env");
         WCEBLoadConfig();
         if (!gEnabled) return;

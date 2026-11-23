@@ -12,6 +12,7 @@ make clean
 make package FINALPACKAGE=1 ARCHS=arm64 THEOS_PACKAGE_SCHEME="$package_scheme"
 out="dist/$scheme"
 mkdir -p "$out"
+python3 scripts/verify_source_contract.py > "$out/source-contract.json"
 # The Theos staging directory contains the final, stripped and signed binary.
 dylib="$(find .theos/_ -type f -name WeChatEnvBypass.dylib -print -quit)"
 test -n "$dylib"

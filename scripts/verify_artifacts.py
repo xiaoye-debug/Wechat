@@ -8,12 +8,15 @@ import subprocess
 import sys
 import tempfile
 
+from verify_source_contract import bundle_filter, verify as verify_source
+
 
 def run(*args):
     return subprocess.check_output(args, text=True, stderr=subprocess.STDOUT).strip()
 
 
 def verify(out, scheme):
+    source_contract = verify_source()
     dylib = out / "WeChatEnvBypass.dylib"
     deb = out / f"WeChatEnvBypass-{scheme}.deb"
     archs = run("lipo", "-archs", str(dylib)).split()
@@ -36,6 +39,9 @@ def verify(out, scheme):
         raise RuntimeError("External hook symbols remain undefined")
     package_info = run("dpkg-deb", "--info", str(deb))
     control = run("dpkg-deb", "--field", str(deb))
+    package_version = run("dpkg-deb", "--field", str(deb), "Version")
+    if package_version != source_contract["version"]:
+        raise RuntimeError("DEB version does not match source")
     if re.search(r"^Depends:.*(?:substrate|hooker|ellekit)", control, re.M | re.I):
         raise RuntimeError("Standalone package incorrectly requires a jailbreak hook runtime")
     architecture = run("dpkg-deb", "--field", str(deb), "Architecture")
@@ -51,12 +57,17 @@ def verify(out, scheme):
             raise RuntimeError(f"DEB payload differs from exported dylib: {relative}")
         if not packed.with_suffix(".plist").is_file():
             raise RuntimeError("DEB loader filter missing")
+        if bundle_filter(packed.with_suffix(".plist")) != source_contract["bundle_ids"]:
+            raise RuntimeError("Packaged bundle IDs do not match DD filter")
     if not re.search(r"\bminos\s+15\.0\b", versions):
         raise RuntimeError("Expected iOS 15.0 minimum deployment target")
     evidence = {
         "scheme": scheme, "architectures": archs, "install_name": identity, "dependencies": deps,
         "package_architecture": architecture, "deb_payload": relative,
         "minimum_ios": "15.0", "hook_generator": "internal",
+        "version": package_version, "bundle_ids": source_contract["bundle_ids"],
+        "dd_default_enabled": source_contract["dd_default_enabled"],
+        "default_enabled_candidates": source_contract["default_enabled_candidates"],
         "ios27_device_tested": False, "certificate_signed_ipa_tested": False,
         "package_info": package_info,
     }

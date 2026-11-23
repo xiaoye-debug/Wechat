@@ -27,13 +27,13 @@
 	<key>HookSignature</key>
 	<true/>
 	<key>HookReportFields</key>
-	<false/>
+	<true/>
 	<key>HookDeviceIdentity</key>
-	<false/>
+	<true/>
 	<key>HookReceiptView</key>
-	<false/>
+	<true/>
 	<key>HookDiagnosticsSuppression</key>
-	<false/>
+	<true/>
 	<key>HookHeaderEnvironment</key>
 	<true/>
 	<key>HookPaymentEnvironment</key>

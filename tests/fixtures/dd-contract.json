@@ -1,0 +1,293 @@
+{
+  "source_package_filter_sha256": "24b06e45fc2aa401e6a6e6ad29fdfb9614f79c7fe4c0963117ca61c5693c2f7c",
+  "bundle_ids": [
+    "com.tencent.xin",
+    "com.tencent.wx",
+    "com.tencent.qy.xin",
+    "com.tencent.mm.xin"
+  ],
+  "hooks": [
+    {
+      "class": "NSProcessInfo",
+      "kind": "-",
+      "selector": "environment"
+    },
+    {
+      "class": "NSFileManager",
+      "kind": "-",
+      "selector": "contentsOfDirectoryAtPath:error:"
+    },
+    {
+      "class": "NSFileManager",
+      "kind": "-",
+      "selector": "fileExistsAtPath:"
+    },
+    {
+      "class": "NSFileManager",
+      "kind": "-",
+      "selector": "fileExistsAtPath:isDirectory:"
+    },
+    {
+      "class": "NSFileManager",
+      "kind": "-",
+      "selector": "contentsAtPath:"
+    },
+    {
+      "class": "NSFileManager",
+      "kind": "-",
+      "selector": "attributesOfItemAtPath:error:"
+    },
+    {
+      "class": "NSBundle",
+      "kind": "-",
+      "selector": "pathForResource:ofType:"
+    },
+    {
+      "class": "NSBundle",
+      "kind": "-",
+      "selector": "appStoreReceiptURL"
+    },
+    {
+      "class": "NSString",
+      "kind": "+",
+      "selector": "stringWithContentsOfFile:encoding:error:"
+    },
+    {
+      "class": "NSDictionary",
+      "kind": "+",
+      "selector": "dictionaryWithContentsOfFile:"
+    },
+    {
+      "class": "UIDevice",
+      "kind": "-",
+      "selector": "identifierForVendor"
+    },
+    {
+      "class": "CUtility",
+      "kind": "+",
+      "selector": "isBeingDebugged"
+    },
+    {
+      "class": "MatrixDeviceInfo",
+      "kind": "+",
+      "selector": "isBeingDebugged"
+    },
+    {
+      "class": "JailBreakHelper",
+      "kind": "+",
+      "selector": "JailBroken"
+    },
+    {
+      "class": "JailBreakHelper",
+      "kind": "+",
+      "selector": "getJailbreakPath"
+    },
+    {
+      "class": "JailBreakHelper",
+      "kind": "+",
+      "selector": "getJailbreakRootDir"
+    },
+    {
+      "class": "JailBreakHelper",
+      "kind": "+",
+      "selector": "getIAPCheckPath"
+    },
+    {
+      "class": "JailBreakHelper",
+      "kind": "-",
+      "selector": "IsJailBreak"
+    },
+    {
+      "class": "JailBreakHelper",
+      "kind": "-",
+      "selector": "HasInstallJailbreakPlugin:"
+    },
+    {
+      "class": "JailBreakHelper",
+      "kind": "-",
+      "selector": "isOverADay"
+    },
+    {
+      "class": "JailBreakHelper",
+      "kind": "-",
+      "selector": "save"
+    },
+    {
+      "class": "SecModuleManager",
+      "kind": "+",
+      "selector": "isAlreadyGet"
+    },
+    {
+      "class": "SecModuleManager",
+      "kind": "+",
+      "selector": "jailbreakModules"
+    },
+    {
+      "class": "SecModuleManager",
+      "kind": "+",
+      "selector": "suspiciousModules"
+    },
+    {
+      "class": "ClientCheckMgr",
+      "kind": "-",
+      "selector": "getImageList"
+    },
+    {
+      "class": "ClientCheckMgr",
+      "kind": "-",
+      "selector": "runningProcesses"
+    },
+    {
+      "class": "ClientCheckMgr",
+      "kind": "-",
+      "selector": "checkHook:"
+    },
+    {
+      "class": "ClientCheckMgr",
+      "kind": "-",
+      "selector": "checkHookWithSeq:"
+    },
+    {
+      "class": "ClientCheckMgr",
+      "kind": "-",
+      "selector": "checkConsistency:"
+    },
+    {
+      "class": "ClientCheckMgr",
+      "kind": "-",
+      "selector": "registerAddImageCallBack"
+    },
+    {
+      "class": "ClientCheckMgr",
+      "kind": "-",
+      "selector": "OnGetNewXmlMsg:Type:MsgWrap:"
+    },
+    {
+      "class": "ClientCheckMgr",
+      "kind": "-",
+      "selector": "onAuthOK"
+    },
+    {
+      "class": "ClientCheckMgr",
+      "kind": "-",
+      "selector": "test"
+    },
+    {
+      "class": "MMClientCacheManager",
+      "kind": "-",
+      "selector": "reportExtInfo:"
+    },
+    {
+      "class": "MMClientCacheManager",
+      "kind": "-",
+      "selector": "doDReport"
+    },
+    {
+      "class": "MMClientCacheManager",
+      "kind": "-",
+      "selector": "doSSReport:"
+    },
+    {
+      "class": "MMClientCacheManager",
+      "kind": "-",
+      "selector": "doSSReport:isBasic:"
+    },
+    {
+      "class": "MMClientCacheManager",
+      "kind": "-",
+      "selector": "onAuthOK"
+    },
+    {
+      "class": "MMClientCacheManager",
+      "kind": "-",
+      "selector": "onServiceEnterBackground"
+    },
+    {
+      "class": "WCAccountControlMgr",
+      "kind": "-",
+      "selector": "onAuthOK"
+    },
+    {
+      "class": "CAppUtil",
+      "kind": "+",
+      "selector": "isProductionSignature"
+    },
+    {
+      "class": "KindaDeviceService",
+      "kind": "-",
+      "selector": "isRoot"
+    },
+    {
+      "class": "UIApplication",
+      "kind": "-",
+      "selector": "canOpenURL:"
+    },
+    {
+      "class": "WCExtInfo",
+      "kind": "-",
+      "selector": "setCcData:"
+    },
+    {
+      "class": "WCExtInfo",
+      "kind": "-",
+      "selector": "setBehaviorId:"
+    },
+    {
+      "class": "WCExtInfo",
+      "kind": "-",
+      "selector": "setUserAttrInfo:"
+    },
+    {
+      "class": "NormalContactVerifyLogic",
+      "kind": "-",
+      "selector": "m_reportInfo"
+    },
+    {
+      "class": "CContactVerifyLogic",
+      "kind": "-",
+      "selector": "m_reportInfo"
+    },
+    {
+      "class": "CContactVerifyLogic",
+      "kind": "-",
+      "selector": "m_spamContext"
+    },
+    {
+      "class": "SendVerifyMsgLogicController",
+      "kind": "-",
+      "selector": "m_spamContext"
+    },
+    {
+      "class": "CVerifyContactWrap",
+      "kind": "-",
+      "selector": "m_reportInfo"
+    },
+    {
+      "class": "WCCrashBlockMonitorPlugin",
+      "kind": "-",
+      "selector": "start"
+    },
+    {
+      "class": "KSCrash",
+      "kind": "-",
+      "selector": "install"
+    },
+    {
+      "class": "KSCrash",
+      "kind": "-",
+      "selector": "setMonitoring:"
+    },
+    {
+      "class": "MMSafeModeMgr",
+      "kind": "-",
+      "selector": "shouldEnterSafeMode"
+    }
+  ],
+  "excluded_passthrough": [
+    {
+      "class": "WCAccountControlMgr",
+      "kind": "-",
+      "selector": "onAuthOK"
+    }
+  ]
+}

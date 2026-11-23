@@ -38,6 +38,13 @@ jobs:
           xcrun --sdk iphoneos --show-sdk-version
           xcrun --sdk iphoneos --show-sdk-path
           git -C "$THEOS" rev-parse HEAD
+      - name: Verify DD defaults and host admission policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_source_contract.py
+          xcrun --sdk macosx clang -fobjc-arc -framework Foundation -I . tests/host_policy.m -o "$RUNNER_TEMP/wceb-host-policy"
+          "$RUNNER_TEMP/wceb-host-policy"
       - name: Build and verify injection package
         shell: bash
         run: bash scripts/build.sh injection
